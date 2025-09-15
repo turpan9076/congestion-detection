@@ -119,7 +119,7 @@ def run_detector(detector, path):
     counts = {label: 0 for label in target_labels}
 
     for label_bytes, score in zip(result["detection_class_entities"], result["detection_scores"]):
-        if score > 0.3:
+        if score > 0.25:
             label = label_bytes.decode("ascii")
             if label in counts:
                 counts[label] += 1
