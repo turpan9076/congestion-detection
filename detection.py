@@ -115,7 +115,7 @@ def run_detector(detector, path):
 
     print("Inference time: ", end_time-start_time)
 
-    target_labels = ["Land vehicle", "Vehicle", "Car", "Bus"]
+    target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck"]
     counts = {label: 0 for label in target_labels}
 
     for label_bytes, score in zip(result["detection_class_entities"], result["detection_scores"]):
