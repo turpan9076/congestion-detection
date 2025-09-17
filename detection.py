@@ -78,7 +78,7 @@ def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
         font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf", 25)
     except IOError:
         try:
-            font = ImageFont.truetype("arial.ttf", 25)
+            font = ImageFont.truetype("arial.ttf", 40)
         except IOError:
             print("Font not found, using default font.")
             font = ImageFont.load_default()
@@ -93,17 +93,18 @@ def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
         np.copyto(image, np.array(image_pil))
     return image
 
-module_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
-#@param ["https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"]
+rcnn_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
+ssd_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
 
-detector = hub.load(module_handle).signatures['default']
+rcnn_detector = hub.load(rcnn_handle).signatures['default']
+ssd_detector = hub.load(ssd_handle).signatures['default']
 
 def load_img(path):
     img = tf.io.read_file(path)
     img = tf.image.decode_jpeg(img, channels=3)
     return img
 
-def run_detector(detector, path):
+def run_detector(detector, path, model_name="model"):
     img = load_img(path)
 
     converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
@@ -113,7 +114,7 @@ def run_detector(detector, path):
 
     result = {key:value.numpy() for key,value in result.items()}
 
-    print("Inference time: ", end_time-start_time)
+    print(f"[{model_name}] Inference time: ", end_time-start_time)
 
     target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck"]
     counts = {label: 0 for label in target_labels}
@@ -124,26 +125,43 @@ def run_detector(detector, path):
             if label in counts:
                 counts[label] += 1
 
-    print("Detection counts:")
+    print(f"[{model_name}] Detection counts:")
     total_count = 0
     for label, cnt in counts.items():
         print(f"  {label}: {cnt}")
         total_count += cnt
     
     traffic_threshold = 54291 / (12*60*60) * 7.5
-    if total_count > traffic_threshold:
-        print("混雑")
-    else:
-        print("混雑なし")
+    congestion_text = "Congested" if total_count > traffic_threshold else "Not congested"
+    print(f"[{model_name}] {congestion_text}")
     
     image_with_boxes = draw_boxes(img.numpy(), result["detection_boxes"], result["detection_class_entities"], result["detection_scores"])
+    image_pil = Image.fromarray(np.uint8(image_with_boxes)).convert("RGB")
+
+    draw = ImageDraw.Draw(image_pil)
+    try:
+        font = ImageFont.truetype("arial.ttf", 80)
+    except IOError:
+        font = ImageFont.load_default()
+    
+    try:
+        bbox = draw.textbbox((0, 0), congestion_text, font=font)
+        text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    except AttributeError:
+        text_w, text_h = font.getsize(congestion_text)
+
+    margin = 10
+    draw.rectangle([margin, margin, margin+text_w+10, margin+text_h+10], fill="yellow")
+    draw.text((margin+5, margin+5), congestion_text, fill="black", font=font)
+    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    output_path = f"./output/C00452_{timestamp}.jpg"
-    Image.fromarray(np.uint8(image_with_boxes)).save(output_path)
+    output_path = f"./output/{model_name}/C00452_{timestamp}.jpg"
+    image_pil.save(output_path)
 
 def detect_img(image_path):
     start_time = time.time()
-    run_detector(detector, image_path)
+    run_detector(rcnn_detector, image_path, model_name="Faster R-CNN")
+    run_detector(ssd_detector, image_path, model_name="SSD")
     end_time = time.time()
     print("Inference time:",end_time-start_time)
 
