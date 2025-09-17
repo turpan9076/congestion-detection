@@ -8,7 +8,7 @@ import tensorflow_hub as hub
 # For downloading the image.
 import matplotlib.pyplot as plt
 import tempfile
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
 from six import BytesIO
 
 # For drawing onto the image.
@@ -116,7 +116,7 @@ def run_detector(detector, path, model_name="model"):
 
     print(f"[{model_name}] Inference time: ", end_time-start_time)
 
-    target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck"]
+    target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck", "Van"]
     counts = {label: 0 for label in target_labels}
 
     for label_bytes, score in zip(result["detection_class_entities"], result["detection_scores"]):
