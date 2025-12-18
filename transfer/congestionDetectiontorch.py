@@ -4,24 +4,20 @@ import time
 from datetime import datetime
 import pandas as pd
 
-import tensorflow as tf
-import tensorflow_hub as hub
+import torch
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
+from torchvision.transforms import functional as F
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 # 定義
 output_dir_name = "output_with_line/20251113"
 
-# モデル読み込み
-rcnn_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
-rcnn_detector = hub.load(rcnn_handle).signatures['default']
-ssd_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
-ssd_detector = hub.load(ssd_handle).signatures['default']
 
-def load_img(path):
-    img = tf.io.read_file(path)
-    img = tf.image.decode_jpeg(img, channels=3)
-    return img
+# モデル読み込み
+
+
 
 def iou(box1, box2):
     y1, x1, y2, x2 = box1
@@ -195,28 +191,104 @@ def draw_boxes(image, boxes, class_names, scores, max_boxes=200, min_score=0.1):
             draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color, font, display_str=display_str)
     return np.array(image_pil)
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+NUM_CLASSES = 6  # background + 5
+MODEL_PATH = "./model.pth"  # Colabで学習したモデル
+
+def draw_boxes_pil(image_pil, boxes, class_names, scores, max_boxes=200, min_score=0.1):
+    image_pil = image_pil.copy()
+
+    try:
+        font = ImageFont.truetype("arial.ttf", 30)
+    except IOError:
+        font = ImageFont.load_default()
+
+    count = min(boxes.shape[0], max_boxes)
+    for i in range(count):
+        if scores[i] >= min_score:
+            ymin, xmin, ymax, xmax = tuple(boxes[i])
+            display_str = f"{class_names[i].decode('ascii')}: {int(100*scores[i])}%"
+            draw_bounding_box_on_image(
+                image_pil, ymin, xmin, ymax, xmax,
+                "red", font, display_str=display_str
+            )
+
+    return image_pil
+
+CLASS_ID_TO_NAME = {
+    1: "Car",
+    2: "Bus",
+    3: "Motorcycle",
+    4: "Ambulance",
+    5: "Truck"
+}
+
+def load_torch_faster_rcnn():
+    model = torch.load(
+        MODEL_PATH,
+        map_location=DEVICE,
+        weights_only=False
+    )
+    model.to(DEVICE)
+    model.eval()
+    return model
+
+
+torch_model = load_torch_faster_rcnn()
+
+
 def run_detector_rcnn_with_merge(path, location_id, model_name="Faster R-CNN"):
-    img = load_img(path)
-    converted_img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
+    img_pil = Image.open(path).convert("RGB")
+    #orig_w, orig_h = img_pil.size
+
+# ===== 検出用に縮小（CPU用）=====
+    #DET_W, DET_H = 640, 360
+    #img_det = img_pil.resize((DET_W, DET_H))
+    img_tensor = F.to_tensor(img_pil).to(DEVICE)
+
     start_time = time.time()
-    result = rcnn_detector(converted_img)
+    with torch.no_grad():
+        output = torch_model([img_tensor])[0]
+    #boxes = output["boxes"].cpu().numpy()
+    #scores = output["scores"].cpu().numpy()
+    #labels = output["labels"].cpu().numpy()
+
+# ===== bbox を元画像サイズに戻す =====
+    #scale_x = orig_w / DET_W
+    #scale_y = orig_h / DET_H
+
+    #boxes[:, [0, 2]] *= scale_x
+    #boxes[:, [1, 3]] *= scale_y
     end_time = time.time()
 
-    result = {key: value.numpy() for key, value in result.items()}
     print(f"[{model_name}] Inference time: {end_time - start_time:.2f}s")
 
-    boxes = result.get("detection_boxes", np.zeros((0,4)))
-    scores = result.get("detection_scores", np.zeros((0,)))
-    class_entities = result.get("detection_class_entities", np.array([], dtype=object))
+    boxes = output["boxes"].cpu().numpy()
+    scores = output["scores"].cpu().numpy()
+    labels = output["labels"].cpu().numpy()
 
-    target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck", "Van", "Motorcycle"]
+    if len(boxes) == 0:
+        return os.path.basename(path), {}, 0, "N/A"
+
+    # PyTorch → TF互換 (ymin,xmin,ymax,xmax 正規化)
+    w, h = img_pil.size
+    boxes[:, [0, 2]] /= w
+    boxes[:, [1, 3]] /= h
+    boxes = boxes[:, [1, 0, 3, 2]]
+
+    class_names = np.array([
+        CLASS_ID_TO_NAME.get(l, "Unknown").encode("ascii")
+        for l in labels
+    ])
+
+    target_labels = list(CLASS_ID_TO_NAME.values())
 
     boxes_final, scores_final, class_names_final = merge_overlapping_detections(
-        boxes, scores, class_entities, target_labels,
+        boxes, scores, class_names, target_labels,
         iou_threshold=0.5, min_score=0.1
     )
 
-    # カウント
     counts = {label: 0 for label in target_labels}
     total_count = 0
     for lbl in class_names_final:
@@ -225,50 +297,28 @@ def run_detector_rcnn_with_merge(path, location_id, model_name="Faster R-CNN"):
             counts[label] += 1
             total_count += 1
 
-    print(f"\n[{model_name}] Detection counts after merge:")
-    for label, cnt in counts.items():
-        if cnt > 0:
-            print(f"  {label}: {cnt}")
-    print(f"  Total: {total_count}")
+    image_with_boxes = draw_boxes(
+        np.array(img_pil),
+        boxes_final,
+        class_names_final,
+        scores_final
+    )
+    #image_with_boxes = draw_boxes_pil(
+    #img_pil,
+    #boxes_final,
+    #class_names_final,
+    #scores_final
+#)
 
-    # # 混雑判定（コメントアウトされている場合は "N/A" を返す）
-    # traffic_threshold = (71074 / (2*24)) / 70 * 0.27 
-    # congestion_text = "Congested" if total_count > traffic_threshold else "Not congested"
-    # print(f"[{model_name}] {congestion_text}")
-    congestion_text = "N/A"  # 混雑判定が無効化されている場合
 
-    # 描画
-    image_with_boxes = draw_boxes(img.numpy(), boxes_final, class_names_final, scores_final)
-    image_pil = Image.fromarray(np.uint8(image_with_boxes)).convert("RGB")
 
-    # # 混雑テキストを画像に追加（コメントアウト）
-    # draw = ImageDraw.Draw(image_pil)
-    # try:
-    #     font = ImageFont.truetype("arial.ttf", 60)
-    # except IOError:
-    #     font = ImageFont.load_default()
-    
-    # try:
-    #     bbox = draw.textbbox((0, 0), congestion_text, font=font)
-    #     text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    # except AttributeError:
-    #     text_w, text_h = font.getsize(congestion_text)
-
-    # margin = 10
-    # draw.rectangle([margin, margin, margin+text_w+20, margin+text_h+20], fill="yellow")
-    # draw.text((margin+10, margin+10), congestion_text, fill="black", font=font)
-
-    # 保存
-    basename = os.path.basename(path)
     output_dir = f"./{output_dir_name}/{location_id}"
     os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, basename)
-
-    image_pil.save(output_path)
-    print(f"[{model_name}] Saved: {output_path}\n")
-    
-    # カウント結果を返す
-    return basename, counts, total_count, congestion_text
+    output_path = os.path.join(output_dir, os.path.basename(path))
+    #image_with_boxes.save(output_path)
+    Image.fromarray(image_with_boxes).save(output_path)
+    del img_tensor, output, boxes, scores, labels
+    return os.path.basename(path), counts, total_count, "N/A"
 
 def parse_filename_datetime(filename):
     basename = os.path.basename(filename)
@@ -322,12 +372,12 @@ def filter_files_by_datetime_range(files, start_datetime_str, end_datetime_str):
 
 if __name__ == "__main__":
     # 処理したい地点IDのリスト (C00452からC00495まで)
-    LOCATION_IDS = [f"C{i:05d}" for i in range(489, 496)]  # C00452 ~ C00495
+    LOCATION_IDS = [f"C{i:05d}" for i in range(452, 453)]  # C00452 ~ C00495
     
-    START_DATETIME = "20251113_0710"
-    END_DATETIME = "20251114_0700"
+    START_DATETIME = "20250917_1815"
+    END_DATETIME = "20250918_1800"
     
-    input_base_dir = "./input_with_line/20251113"
+    input_base_dir = "."
     
     # 全地点の結果を格納する辞書
     all_location_results = {}
@@ -369,7 +419,8 @@ if __name__ == "__main__":
         df = pd.DataFrame(results)
         
         # 列の並び順を指定
-        target_labels = ["Land vehicle", "Vehicle", "Car", "Bus", "Truck", "Van", "Motorcycle"]
+        target_labels = ["Car", "Bus", "Motorcycle", "Ambulance", "Truck"]
+
         column_order = ['Location', 'Filename', 'DateTime'] + target_labels + ['Total', 'Status']
         df = df[column_order]
         

@@ -1,4 +1,8 @@
-venv_tf
+venv_tf/
+models/
+faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/
 *.jpg
 *.txt
 *.xlsx
+*.pdf
+*.xml
