@@ -6,3 +6,4 @@ faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/
 *.xlsx
 *.pdf
 *.xml
+*.pth
