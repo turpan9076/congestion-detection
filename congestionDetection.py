@@ -156,28 +156,27 @@ def draw_bounding_box_on_image(image, ymin, xmin, ymax, xmax, color, font, thick
         draw.text((left + margin, label_top + margin), display_str, fill="black", font=font)
 
 def draw_boxes(image, boxes, class_names, scores, max_boxes=200, min_score=0.1):
-    # 見やすい明るい色のみを使用
     colors = [
-        'red',           # 赤
-        'lime',          # 明るい緑
-        'blue',          # 青
-        'yellow',        # 黄色
-        'cyan',          # シアン
-        'magenta',       # マゼンタ
-        'orange',        # オレンジ
-        'deeppink',      # 濃いピンク
-        'springgreen',   # 春緑
-        'gold',          # 金色
-        'hotpink',       # ホットピンク
-        'dodgerblue',    # ドジャーブルー
-        'orangered',     # オレンジ赤
-        'greenyellow',   # 緑黄色
-        'aqua',          # 水色
-        'fuchsia',       # フクシア
-        'coral',         # コーラル
-        'lightgreen',    # 明るい緑
-        'royalblue',     # ロイヤルブルー
-        'tomato'         # トマト色
+        'red',
+        'lime',
+        'blue',
+        'yellow',
+        'cyan',
+        'magenta',
+        'orange',
+        'deeppink',
+        'springgreen',
+        'gold',
+        'hotpink',
+        'dodgerblue',
+        'orangered',
+        'greenyellow',
+        'aqua',
+        'fuchsia',
+        'coral',
+        'lightgreen',
+        'royalblue',
+        'tomato'
     ]
     
     try:
@@ -231,11 +230,11 @@ def run_detector_rcnn_with_merge(path, location_id, model_name="Faster R-CNN"):
             print(f"  {label}: {cnt}")
     print(f"  Total: {total_count}")
 
-    # # 混雑判定（コメントアウトされている場合は "N/A" を返す）
+    # # 混雑判定
     # traffic_threshold = (71074 / (2*24)) / 70 * 0.27 
     # congestion_text = "Congested" if total_count > traffic_threshold else "Not congested"
     # print(f"[{model_name}] {congestion_text}")
-    congestion_text = "N/A"  # 混雑判定が無効化されている場合
+    # congestion_text = "N/A"  # 混雑判定が無効化されている場合
 
     # 描画
     image_with_boxes = draw_boxes(img.numpy(), boxes_final, class_names_final, scores_final)
@@ -378,17 +377,17 @@ if __name__ == "__main__":
         df.to_excel(output_excel_path, index=False, engine='openpyxl')
         print(f"\nVehicle count results for {location_id} saved to: {output_excel_path}")
         
-    #     # 全体の結果に追加
-    #     all_location_results[location_id] = df
+        # 全体の結果に追加
+        all_location_results[location_id] = df
     
-    # # 全地点を統合したExcelファイルを作成
-    # if all_location_results:
-    #     combined_df = pd.concat(all_location_results.values(), ignore_index=True)
-    #     combined_output_path = "./vehicle_counts_all_locations.xlsx"
-    #     combined_df.to_excel(combined_output_path, index=False, engine='openpyxl')
-    #     print(f"\n{'='*80}")
-    #     print(f"Combined results for all locations saved to: {combined_output_path}")
-    #     print(f"{'='*80}\n")
-    # else:
-    #     print("\nWARNING: No results to save. No files were processed.")
-    #     print("Please check the debug information above.")
+    # 全地点を統合したExcelファイルを作成
+    if all_location_results:
+        combined_df = pd.concat(all_location_results.values(), ignore_index=True)
+        combined_output_path = "./vehicle_counts_all_locations.xlsx"
+        combined_df.to_excel(combined_output_path, index=False, engine='openpyxl')
+        print(f"\n{'='*80}")
+        print(f"Combined results for all locations saved to: {combined_output_path}")
+        print(f"{'='*80}\n")
+    else:
+        print("\nWARNING: No results to save. No files were processed.")
+        print("Please check the debug information above.")

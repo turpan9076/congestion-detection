@@ -4,29 +4,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "中地",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.670963,
-          34.815697
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "夢前東",
         "_markerType": "Icon",
         "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
@@ -533,121 +510,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "姫路東",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.715353,
-          34.798598
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "別所PA(下)",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.75446,
-          34.79962
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "別所PA(上)",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.750007,
-          34.800457
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "高砂北",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.802665,
-          34.791845
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "加古川西",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.817792,
-          34.78807
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "加古川",
         "_markerType": "Icon",
         "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
@@ -671,29 +533,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "加古川東",
-        "_markerType": "Icon",
-        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
-        "_iconSize": [
-          20,
-          20
-        ],
-        "_iconAnchor": [
-          10,
-          10
-        ]
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          134.862403,
-          34.754919
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "明石西",
         "_markerType": "Icon",
         "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
@@ -709,8 +548,169 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          134.894181,
-          34.724578
+          134.894495,
+          34.72426
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "加古川東",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.862124,
+          34.755193
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "加古川西",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.816236,
+          34.788519
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "高砂北",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.803008,
+          34.79181
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "別所PA(下)",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.753795,
+          34.799667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "別所PA(上)",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.749747,
+          34.800501
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "姫路東",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.715986,
+          34.798546
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "中地",
+        "_markerType": "Icon",
+        "_iconUrl": "https://maps.gsi.go.jp/portal/sys/v4/symbols/080.png",
+        "_iconSize": [
+          20,
+          20
+        ],
+        "_iconAnchor": [
+          10,
+          10
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.673269,
+          34.814893
         ]
       }
     }

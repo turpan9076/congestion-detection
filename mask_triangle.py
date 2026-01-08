@@ -3,8 +3,8 @@ import glob
 import os
 
 # 入力フォルダと出力フォルダ
-input_dir = "./input/20251113_masked/C00469"
-output_dir = "./input/20251113_masked/C00469_triangle"
+input_dir = "./input/20260101/C00469_masked"
+output_dir = "./input/20260101/C00469_masked"
 os.makedirs(output_dir, exist_ok=True)
 
 # 三角形の3点を指定

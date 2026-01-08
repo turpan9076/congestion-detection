@@ -3,8 +3,8 @@ import glob
 import os
 
 # 入力フォルダと出力フォルダ
-input_dir = "./input/20251113/C00469"
-output_dir = "./input/20251113/C00469_masked"
+input_dir = "./input/20260101/C00469"
+output_dir = "./input/20260101/C00469_masked"
 os.makedirs(output_dir, exist_ok=True)
 
 # 長方形のサイズ（px）
